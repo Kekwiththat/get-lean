@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta charset="UTF-8">
+<title>Get Lean</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="manifest" href="manifest.json">
+
+<style>
+
+body{
+font-family:Arial;
+background:#f2f2f2;
+padding:20px;
+}
+
+h1{text-align:center;}
+
+.card{
+background:white;
+padding:20px;
+margin-bottom:20px;
+border-radius:10px;
+box-shadow:0 2px 6px rgba(0,0,0,.15);
+}
+
+button{
+padding:10px;
+background:#007AFF;
+color:white;
+border:none;
+border-radius:5px;
+margin-top:10px;
+}
+
+input{
+padding:6px;
+margin:4px;
+width:100px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>Get Lean</h1>
+
+<div class="card">
+
+<h3>Enable Notifications</h3>
+<button onclick="enableNotifications()">Enable Notifications</button>
+
+</div>
+
+<div class="card">
+
+<h3>43 Day Transformation Timer</h3>
+
+Start Date
+<input type="date" id="startDate">
+
+<button onclick="startProgram()">Start Program</button>
+
+<p id="dayCounter"></p>
+
+</div>
+
+<div class="card">
+
+<h3>Meal Tracker</h3>
+
+Chicken (oz)
+<input id="chicken">
+
+Rice (cups)
+<input id="rice">
+
+Broccoli (cups)
+<input id="broccoli">
+
+Juice Calories
+<input id="juice">
+
+Custom Calories
+<input id="custom">
+
+<br>
+
+<button onclick="addMeal()">Add Meal</button>
+
+<p id="calories">Calories: 0</p>
+
+</div>
+
+<div class="card">
+
+<h3>Water Tracker</h3>
+
+Glasses:
+<span id="waterCount">0</span> / 16
+
+<br>
+
+<button onclick="addWater()">Add Glass</button>
+<button onclick="removeWater()">Remove Glass</button>
+
+</div>
+
+<div class="card">
+
+<h3>10 Minute Workout</h3>
+
+Pushups<br>
+Squats<br>
+Jumping Jacks<br>
+Plank<br>
+
+<button onclick="startWorkout()">Start Workout</button>
+
+<p id="timer"></p>
+
+</div>
+
+<div class="card">
+
+<h3>Gym Workout Plan</h3>
+
+Monday – Upper Body<br>
+Tuesday – Cardio + Core<br>
+Wednesday – Lower Body<br>
+Thursday – Chest + Back<br>
+Friday – Arms + Shoulders<br>
+Saturday – Full Body<br>
+Sunday – Rest
+
+</div>
+
+<div class="card">
+
+<h3>BMI Calculator</h3>
+
+Height (in)
+<input id="height">
+
+Weight (lbs)
+<input id="bmiWeight">
+
+<button onclick="calcBMI()">Calculate BMI</button>
+
+<p id="bmiResult"></p>
+
+</div>
+
+<div class="card">
+
+<h3>Weight Tracker</h3>
+
+Weight
+<input id="weightInput">
+
+<button onclick="addWeight()">Add</button>
+
+<p id="weightHistory"></p>
+
+</div>
+
+<div class="card">
+
+<h3>Daily Steps Tracker</h3>
+
+Steps Today
+<input id="stepsInput">
+
+<button onclick="updateSteps()">Update Steps</button>
+
+<p id="stepsDisplay"></p>
+
+</div>
+
+<div class="card">
+
+<h3>AI Meal Plan Generator</h3>
+
+Daily Calories
+<input id="mealCalories" value="1750">
+
+<button onclick="generateMealPlan()">Generate Plan</button>
+
+<p id="mealPlanResult"></p>
+
+</div>
+
+<script>
+
+if('serviceWorker' in navigator){
+navigator.serviceWorker.register('service-worker.js')
+}
+
+function enableNotifications(){
+Notification.requestPermission()
+}
+
+function startProgram(){
+
+let start=new Date(document.getElementById("startDate").value)
+let today=new Date()
+
+let diff=Math.floor((today-start)/(1000*60*60*24))
+
+document.getElementById("dayCounter").innerText="Day "+diff+" of 43"
+
+}
+
+let calories=0
+
+function addMeal(){
+
+let chicken=document.getElementById("chicken").value*60
+let rice=document.getElementById("rice").value*200
+let broccoli=document.getElementById("broccoli").value*50
+let juice=document.getElementById("juice").value*1
+let custom=document.getElementById("custom").value*1
+
+let total=chicken+rice+broccoli+juice+custom
+
+calories+=total
+
+document.getElementById("calories").innerText="Calories: "+calories
+
+localStorage.setItem("calories",calories)
+
+}
+
+let water=0
+
+function addWater(){
+
+if(water<16) water++
+
+document.getElementById("waterCount").innerText=water
+
+}
+
+function removeWater(){
+
+if(water>0) water--
+
+document.getElementById("waterCount").innerText=water
+
+}
+
+function startWorkout(){
+
+let time=600
+
+let timer=setInterval(()=>{
+
+time--
+
+document.getElementById("timer").innerText=time+" seconds"
+
+if(time<=0){
+clearInterval(timer)
+}
+
+},1000)
+
+}
+
+function calcBMI(){
+
+let h=document.getElementById("height").value
+let w=document.getElementById("bmiWeight").value
+
+let bmi=(w/(h*h))*703
+
+document.getElementById("bmiResult").innerText="BMI: "+bmi.toFixed(1)
+
+}
+
+let weights=[]
+
+function addWeight(){
+
+let w=document.getElementById("weightInput").value
+
+weights.push(w)
+
+document.getElementById("weightHistory").innerText=weights.join(", ")
+
+}
+
+function updateSteps(){
+
+let steps=document.getElementById("stepsInput").value
+
+document.getElementById("stepsDisplay").innerText="Steps Today: "+steps
+
+}
+
+function generateMealPlan(){
+
+let calories=document.getElementById("mealCalories").value
+
+let protein=Math.round(calories*0.3/4)
+let carbs=Math.round(calories*0.4/4)
+let fats=Math.round(calories*0.3/9)
+
+let plan=
+"Lunch: Chicken + Brown Rice + Broccoli\n"+
+"Snack: Cold Pressed Juice + Egg\n"+
+"Dinner: Chicken + Rice + Vegetables\n\n"+
+"Protein: "+protein+"g\n"+
+"Carbs: "+carbs+"g\n"+
+"Fat: "+fats+"g"
+
+document.getElementById("mealPlanResult").innerText=plan
+
+}
+
+</script>
+
+</body>
+</html>
